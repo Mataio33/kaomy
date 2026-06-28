@@ -129,6 +129,11 @@ No additional configuration is required.
 
 # Configuration
 
+The AppDaemon configuration must be defined in the following file:
+/addon_configs/a0d7b954_appdaemon/apps/apps.yaml
+
+After making any changes, make sure to restart AppDaemon and check the logs to ensure everything is running properly.
+
 Example AppDaemon configuration:
 
 ```yaml
@@ -277,7 +282,8 @@ Keeping responsibilities separated makes Kaomy reliable, testable and easy to ex
 
 # Author
 
-Created by **Mataïo**
+Created by **Mataïo** ☕
+Powered by coffee and Home Assistant — Nouméa
 
 ---
 
