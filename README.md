@@ -1,594 +1,286 @@
-\# Kaomy
-
-
-
 <p align="center">
 
-
-
-<img src="docs/logo.png" width="180">
-
-
-
-\*\*Home Resource Framework for Home Assistant\*\*
-
-
-
-Persistent • Modular • Provider Agnostic • AppDaemon Powered
-
-
+<img src="docs/logo.png" width="220">
 
 </p>
 
+<h1 align="center">Kaomy</h1>
+
+<p align="center">
+
+<b>Reliable Resource Collection for Home Assistant</b>
+
+Persistent • Modular • Provider Agnostic • Home Assistant Ready
+
+</p>
+
+<p align="center">
+
+![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python)
+
+![License](https://img.shields.io/badge/License-MIT-green)
+
+![Version](https://img.shields.io/badge/Version-1.0.0-orange)
+
+![Home Assistant](https://img.shields.io/badge/Home%20Assistant-Compatible-41BDF5?logo=homeassistant)
+
+</p>
+
+---
+
+# Overview
+
+Kaomy is a lightweight framework designed to collect, normalize, cache and publish home resource data.
 
 
-\---
+Rather than writing one monolithic script per provider, Kaomy introduces a modular architecture based on Providers, Collectors and a persistent local cache.
 
+The framework is designed to remain simple while being highly extensible.
 
+---
 
-\## Overview
+# Features
 
+- Persistent local cache
+- Automatic sensor restoration after Home Assistant restart
+- Automatic sensor restoration after AppDaemon restart
+- Provider / Collector architecture
+- Resource normalization
+- Home Assistant Statistics compatible
+- Home Assistant Energy Dashboard compatible
+- ApexCharts compatible
+- Modular architecture
+- Easily extensible
 
+---
 
-Kaomy is a lightweight framework designed to collect, normalize, cache and publish home resource data for Home Assistant.
-
-
-
-Instead of writing one script per provider, Kaomy introduces a modular architecture separating:
-
-
-
-\- Providers
-
-\- Collectors
-
-\- Cache
-
-\- Home Assistant publication
-
-
-
-This makes adding new providers and new resources extremely simple.
-
-
-
-\---
-
-
-
-\## Features
-
-
-
-\- Persistent local cache
-
-\- Automatic restoration after Home Assistant restart
-
-\- Automatic restoration after AppDaemon restart
-
-\- Provider / Collector architecture
-
-\- Home Assistant sensor publishing
-
-\- ApexCharts-compatible historical data
-
-\- Energy Dashboard compatible sensors
-
-\- Clean Python architecture
-
-\- Fully documented
-
-\- Easily extensible
-
-
-
-\---
-
-
-
-\## Current Providers
-
-
+# Current Providers
 
 | Provider | Resource |
-
-|----------|----------|
-
+|-----------|----------|
 | CDE | Water |
+| ENERCAL | Electricity |
 
-| Enercal | Electricity |
+---
 
-
-
-\---
-
-
-
-\## Current Collectors
-
-
+# Current Collectors
 
 | Collector | Resource |
-
 |-----------|----------|
+| water_principal | Main water meter |
+| power_maison | House electricity |
 
-| water\_principal | Main water meter |
+---
 
-| power\_maison | House electricity |
-
-
-
-\---
-
-
-
-\## Project Architecture
-
-
+# Architecture
 
 ```text
+External Provider
+        │
+        ▼
+     Provider
+        │
+        ▼
+   ResourceState
+        │
+ ┌──────┴──────┐
+ │             │
+ ▼             ▼
+CacheManager SensorManager
+ │             │
+ └──────┬──────┘
+        ▼
+ Home Assistant
+```
 
+---
+
+# Project Structure
+
+```text
 kaomy/
-
 │
-
 ├── cache/
-
-│
-
 ├── collectors/
-
-│   ├── power\_maison.py
-
-│   └── water\_principal.py
-
-│
-
 ├── core/
-
-│   ├── banner.py
-
-│   ├── cache\_manager.py
-
-│   ├── constants.py
-
-│   ├── exceptions.py
-
-│   └── sensor\_manager.py
-
-│
-
 ├── docs/
-
-│
-
 ├── models/
-
-│   ├── resource\_metadata.py
-
-│   └── resource\_state.py
-
-│
-
 ├── providers/
-
-│   ├── base\_provider.py
-
-│   ├── cde.py
-
-│   └── enercal.py
-
 │
-
 ├── README.md
-
 ├── LICENSE
-
 └── version.py
-
 ```
 
+---
 
+# Home Assistant
 
-\---
+Kaomy automatically creates sensors compatible with:
 
+- Recorder
+- Statistics
+- Energy Dashboard
+- ApexCharts
 
+No additional configuration is required.
 
-\## How it works
+---
 
+# Configuration
 
-
-```text
-
-&#x20;         External Provider
-
-&#x20;                │
-
-&#x20;                ▼
-
-&#x20;           Provider
-
-&#x20;                │
-
-&#x20;                ▼
-
-&#x20;         ResourceState
-
-&#x20;                │
-
-&#x20;       ┌────────┴────────┐
-
-&#x20;       │                 │
-
-&#x20;       ▼                 ▼
-
-&#x20;  CacheManager     SensorManager
-
-&#x20;       │                 │
-
-&#x20;       └────────┬────────┘
-
-&#x20;                ▼
-
-&#x20;         Home Assistant
-
-```
-
-
-
-\---
-
-
-
-\## Home Assistant
-
-
-
-Kaomy automatically creates compatible sensors for:
-
-
-
-\- Home Assistant Recorder
-
-\- Home Assistant Statistics
-
-\- Home Assistant Energy Dashboard
-
-\- ApexCharts
-
-
-
-\---
-
-
-
-\## Example AppDaemon configuration
-
-
+Example AppDaemon configuration:
 
 ```yaml
+power_maison:
+  module: kaomy.collectors.power_maison
+  class: PowerMaisonCollector
 
-power\_maison:
+  username: CHANGE_ME
+  password: CHANGE_ME
 
-&#x20; module: kaomy.collectors.power\_maison
+  schedule: "03:00:00"
 
-&#x20; class: PowerMaisonCollector
+  simulation: false
 
+water_principal:
+  module: kaomy.collectors.water_principal
+  class: WaterPrincipalCollector
 
+  username: CHANGE_ME
+  password: CHANGE_ME
 
-&#x20; username: CHANGE\_ME
+  point_installation_id: CHANGE_ME
 
-&#x20; password: CHANGE\_ME
+  schedule: "02:00:00"
 
-
-
-&#x20; schedule: "03:00:00"
-
-
-
-&#x20; simulation: false
-
-
-
-
-
-water\_principal:
-
-&#x20; module: kaomy.collectors.water\_principal
-
-&#x20; class: WaterPrincipalCollector
-
-
-
-&#x20; username: CHANGE\_ME
-
-&#x20; password: CHANGE\_ME
-
-
-
-&#x20; point\_installation\_id: CHANGE\_ME
-
-
-
-&#x20; schedule: "02:00:00"
-
-
-
-&#x20; simulation: false
-
+  simulation: false
 ```
 
+---
 
+# CDE - Finding the point_installation_id
 
-\---
-
-
-
-\# CDE - Finding the point\_installation\_id
-
-
-
-To retrieve the \*\*point\_installation\_id\*\*:
-
-
-
-1\. Login to the CDE customer portal.
-
-2\. Open the \*\*Consumption\*\* page.
-
-3\. Open the browser \*\*Developer Tools\*\*.
-
-4\. Go to the \*\*Network\*\* tab.
-
-5\. Refresh the consumption graph.
-
-6\. Locate the request named:
-
-
+1. Login to the CDE customer portal.
+2. Open the Consumption page.
+3. Open your browser Developer Tools.
+4. Go to the Network tab.
+5. Refresh the consumption graph.
+6. Locate the request:
 
 ```text
-
 GetGraphRelevesData
-
 ```
 
+7. Inspect its payload.
 
-
-7\. Inspect the request payload.
-
-
-
-You will find:
-
-
+Retrieve:
 
 ```text
-
 pointDInstallationId
-
 ```
 
-
-
 Example:
-
-
 
 ```text
-
-76543
-
+76397
 ```
 
+Use this value in your AppDaemon configuration.
 
+---
 
-Use this value in \*\*apps.yaml\*\*.
+# Triggering an immediate collection
 
+Collectors normally run according to their configured schedule.
 
+For development purposes you can temporarily enable an immediate execution.
 
-\---
-
-
-
-\# Running a collector immediately
-
-
-
-Collectors normally run once per day.
-
-
-
-Example:
-
-
-
-```yaml
-
-schedule: "03:00:00"
-
-```
-
-
-
-During development or testing you can trigger an immediate execution.
-
-
-
-Temporarily uncomment the following line inside the collector:
-
-
+Simply uncomment:
 
 ```python
-
-self.run\_in(self.collect\_and\_publish, 10)
-
+self.run_in(self.collect_and_publish, 10)
 ```
 
-
+inside the collector.
 
 Example:
 
-
-
 ```text
-
-collectors/power\_maison.py
-
-collectors/water\_principal.py
-
+collectors/power_maison.py
+collectors/water_principal.py
 ```
 
+Once the cache has been initialized successfully, comment or remove this line.
 
+---
 
-The collector will execute \*\*10 seconds\*\* after AppDaemon starts.
+# Security
 
-
-
-Once the cache has been created successfully, remove or comment the line again.
-
-
-
-This avoids unnecessary requests to external providers.
-
-
-
-\---
-
-
-
-\## Security
-
-
-
-Do \*\*NOT\*\* commit:
-
-
+Never commit:
 
 ```text
-
 apps.yaml
-
-cache/\*.json
-
+cache/*.json
 ```
 
+Credentials must remain outside the repository.
 
+---
 
-Credentials must remain inside your AppDaemon configuration.
+# Screenshot
 
+<p align="center">
 
+<img src="docs/screenshot-dashboard.png">
 
-\---
+</p>
 
+---
 
+# Roadmap
 
-\## Screenshot
+## Version 1.0
 
+- ✅ Persistent cache
+- ✅ Resource normalization
+- ✅ Home Assistant integration
+- ✅ CDE provider
+- ✅ ENERCAL provider
+- ✅ Water collector
+- ✅ Electricity collector
 
+## Next
 
-!\[Kaomy Dashboard](docs/screenshot-dashboard.png)
+- Consumption analytics
+- Cost analytics
+- Solar production
+- Battery storage
+- Weather integration
+- Smart recommendations
 
+---
 
+# Philosophy
 
-\---
+Kaomy follows one simple principle.
 
+> **Providers collect data.**
 
+> **Collectors orchestrate.**
 
-\## Roadmap
+> **The Core remains provider agnostic.**
 
+Keeping responsibilities separated makes Kaomy reliable, testable and easy to extend.
 
+---
 
-\### Version 1.0
+# Author
 
+Created by **Mataïo**
 
+---
 
-\- \[x] CacheManager
-
-\- \[x] SensorManager
-
-\- \[x] ResourceState
-
-\- \[x] ResourceMetadata
-
-\- \[x] Enercal Provider
-
-\- \[x] CDE Provider
-
-\- \[x] Main electricity collector
-
-\- \[x] Main water collector
-
-
-
-\### Next
-
-
-
-\- Consumption analytics
-
-\- Cost analytics
-
-\- Solar production
-
-\- Battery storage
-
-\- Weather integration
-
-\- Smart recommendations
-
-
-
-\---
-
-
-
-\## License
-
-
+# License
 
 MIT
-
-
-
-\---
-
-
-
-\## Author
-
-
-
-Created by \*\*Mataïo\*\*
-
-
-
-
-
-\---
-
-
-
-\## Philosophy
-
-
-
-Kaomy follows one simple rule:
-
-
-
-> \*\*Providers collect data.\*\*
-
-
-
-> \*\*Collectors orchestrate.\*\*
-
-
-
-> \*\*The Core remains provider agnostic.\*\*
-
-
-
-This philosophy keeps Kaomy modular, testable and easy to extend.
-
-
-
