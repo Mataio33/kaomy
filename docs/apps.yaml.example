@@ -1,0 +1,17 @@
+---
+water_principal:
+  module: kaomy.collectors.water_principal
+  class: WaterPrincipalCollector
+  username: "CHANGE_ME"
+  password: "CHANGE_ME"
+  point_installation_id: "CHANGE_ME"
+  schedule: "02:00:00"
+  simulation: false
+
+power_maison:
+  module: kaomy.collectors.power_maison
+  class: PowerMaisonCollector
+  username: "CHANGE_ME"
+  password: "CHANGE_ME"
+  schedule: "03:00:00"
+  simulation: false
